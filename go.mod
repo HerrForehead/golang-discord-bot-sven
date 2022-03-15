@@ -1,6 +1,6 @@
 module github.com/HerrForehead/discord-bot-herr
 
-go 1.17
+go 1.16
 
 require github.com/bwmarrin/discordgo v0.24.0 // direct
 
