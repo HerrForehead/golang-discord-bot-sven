@@ -176,4 +176,32 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		s.ChannelMessageSend(m.ChannelID, doggy.Message)
 	}
+
+	if strings.ToLower(m.Content) == "fortunecookie" {
+		cookie := fortunecookie{}
+
+		url := "http://www.yerkee.com/api/fortune/wisdom"
+
+		response, err := http.Get(url)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if response.StatusCode != http.StatusOK {
+			log.Fatal("De api heeft een andere statuscode teruggegeven dan 200, namelijk ", response.Status)
+		}
+
+		defer response.Body.Close()
+
+		data, err := io.ReadAll(response.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		err = json.Unmarshal(data, &cookie)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		s.ChannelMessageSend(m.ChannelID, cookie.Fortune)
+	}
 }

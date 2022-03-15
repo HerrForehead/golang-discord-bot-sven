@@ -13,3 +13,7 @@ type catfact struct {
 type doggyphoto struct {
 	Message string
 }
+
+type fortunecookie struct {
+	Fortune string
+}
