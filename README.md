@@ -4,7 +4,7 @@
 Een Discord bot gemaakt in Go. Deze Discord bot neemt verschillende commandos en roept hierna data op van een API die deze dan ook teruggeeft. De bot kan worden geconfigureerd doormiddel van de config.json.
 
 ## Voorbeeld
-https://i.imgur.com/fpMEpJ5.gif
+![](https://github.com/HerrForehead/golang-discord-bot-sven/blob/main/example.gif)
 
 ## Hoe te gebruiken
 
