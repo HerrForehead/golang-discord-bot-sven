@@ -5,8 +5,10 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -15,10 +17,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-// Variables used for command line parameters
 var (
 	Token     string
 	replySelf string
+	DeepAIkey string
 )
 
 func init() {
@@ -28,9 +30,17 @@ func init() {
 }
 
 func main() {
-	Token = "OTUxMTYzNDQ1MjAwNDMzMjEy.Yijd_Q.LjrBL8_tBU_eBU4t7XCCfeI1Bug"
+	configInfo := config{}
+
+	config, err := ioutil.ReadFile("./config.json")
+	if err != nil {
+		log.Fatal("Error when opening file: ", err)
+	}
+
+	err = json.Unmarshal(config, &configInfo)
+
 	// Create a new Discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + Token)
+	dg, err := discordgo.New("Bot " + configInfo.Token)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
@@ -51,6 +61,7 @@ func main() {
 
 	// Wait here until CTRL-C or other term signal is received.
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
+	fmt.Println("Using API key: ", configInfo.Token)
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	<-sc
@@ -204,4 +215,42 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		s.ChannelMessageSend(m.ChannelID, cookie.Fortune)
 	}
+
+	if strings.Contains(m.Content, "text2img") {
+		configInfo := config{}
+
+		config, err := ioutil.ReadFile("./config.json")
+		if err != nil {
+			log.Fatal("Error when opening file: ", err)
+		}
+
+		err = json.Unmarshal(config, &configInfo)
+
+		t2i := text2img{}
+
+		word := strings.Split(m.Content, " ")
+		fmt.Println(word[1])
+
+		client := &http.Client{}
+		form := url.Values{}
+		form.Set("text", word[1])
+		req, _ := http.NewRequest("GET", "https://api.deepai.org/api/text2img", strings.NewReader(form.Encode()))
+		req.Header.Set("api-key", configInfo.DeepAIkey)
+		res, _ := client.Do(req)
+
+		//fmt.Println(res.Body)
+
+		data, err := io.ReadAll(res.Body)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println("API key for T2I is: ", configInfo.DeepAIkey)
+		fmt.Println(string(data))
+
+		err = json.Unmarshal(data, &t2i)
+
+		s.ChannelMessageSend(m.ChannelID, t2i.Output_url)
+	}
+
 }
