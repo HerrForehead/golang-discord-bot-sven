@@ -1,1 +1,0 @@
-web: bin/discord-bot-herr

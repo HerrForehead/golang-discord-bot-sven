@@ -210,7 +210,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		err = json.Unmarshal(data, &cookie)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal("Fout bij het openen van het bestand: ", err)
 		}
 
 		s.ChannelMessageSend(m.ChannelID, cookie.Fortune)
@@ -221,7 +221,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		config, err := ioutil.ReadFile("./config.json")
 		if err != nil {
-			log.Fatal("Error when opening file: ", err)
+			log.Fatal("Fout bij het openen van het bestand: ", err)
 		}
 
 		err = json.Unmarshal(config, &configInfo)
